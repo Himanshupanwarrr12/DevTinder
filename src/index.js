@@ -1,31 +1,58 @@
 const express = require("express");
-const app = express()
+const app = express();
 const User = require("./models/user");
 const dbConnection = require("./config/database");
 const port = 7777;
-
-
+app.use(express.json());
 
 // creating api for storing user in database
-app.post( '/signUp', async (req,res) => {
+app.post("/signUp", async (req, res) => {
+  //creating new instance of User for userObj
+  const userObj = new User(req.body);
+  try {
+    await userObj.save();
+    res.send(" user succesfully stored");
+  } catch (error) {
+    res.status(400).send("error found");
+  }
+});
 
-    //creating new instance of User for userObj
-    const  userObj = new User({
-        firstName : "Himanshu",
-        lastName : "Panwar",
-        age : 21
-    })
+// creating api for finding a user from a database
+app.get("/user", async (req, res) => {
+  const userLastName = req.body.lastName;
 
-    try {
-         await userObj.save()
-    res.send(" user succesfully stored")
-    } catch (error) {
-        res.status(400).
-        res.send("error found")
+  try {
+    const users = await User.find({ lastName: userLastName });
+
+    if (users.length === 0) {
+      res.status(404).send("user not found");
+    } else {
+      res.send(users);
     }
-   
-   
+  } catch (error) {
+    res.status(404).send("something went wrong");
+  }
+
+
+  
+});
+
+
+// creating a api to getting all users/feed
+
+app.get("/feed", async (req,res) => {
+  try {
+    const allUsers = await User.find({})
+    res.status(200).send(allUsers)
+    
+  } catch (error) {
+    res.status(404).send("something went wrong",);
+    console.log(error)
+  }
+  
 })
+
+
 
 
 dbConnection()
