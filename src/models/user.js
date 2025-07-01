@@ -43,10 +43,18 @@ const userSchema = new mongoose.Schema({
     },
   age: {
     type: Number,
-    required:true,
     min:0,
     max:100,
-    validator: Number.isInteger
+    validator: Number.isInteger()
+  },
+  skills:{
+    type: [String],
+  validate: {
+  validator: function(value) {
+    return value.length >= 2 && value.length <= 6;
+  },
+  message: "Skills must be between 2 and 6"
+}
   },
   about: {
     type: String,
@@ -54,7 +62,6 @@ const userSchema = new mongoose.Schema({
   },
   photoUrl:{
     type: String,
-    required: true
   },
 },{timestamps:true});
 
