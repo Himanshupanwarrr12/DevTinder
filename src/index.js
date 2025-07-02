@@ -2,30 +2,34 @@ const express = require("express");
 const app = express();
 const User = require("./models/user");
 const dbConnection = require("./config/database");
-const {validateSignUpData} = require('./utils/validateSignUpData')
-const bcrypt = require('bcrypt')
+const { validateSignUpData } = require("./utils/validateSignUpData");
+const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const port = 7777;
+
 app.use(express.json());
+app.use(cookieParser());
 
 //  api for storing user in database
 app.post("/signUp", async (req, res) => {
-try { 
-  //validating  data
-  validateSignUpData(req)
+  try {
+    //validating  data
+    validateSignUpData(req);
 
-  //encrypting data 
-  const {firstName,skills,emailId,gender,password} = req.body
-  const hashedPass = await bcrypt.hash(password ,10)
+    //encrypting data
+    const { firstName, skills, emailId, gender, password } = req.body;
+    const hashedPass = await bcrypt.hash(password, 10);
 
-  // instance of User for userObj
-  const userObj = new User({
-    firstName,
-    emailId,
-    gender,
-    skills,
-    password: hashedPass
-  });
-  
+    // instance of User for userObj
+    const userObj = new User({
+      firstName,
+      emailId,
+      gender,
+      skills,
+      password: hashedPass,
+    });
+
     await userObj.save();
     res.send(" user succesfully stored");
   } catch (error) {
@@ -34,25 +38,60 @@ try {
 });
 
 // api for user login
-app.post("/login",async (req,res)=>{
-try{ 
-  const {emailId,password} = req.body
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
 
-  const user = await User.findOne({emailId:emailId})
-  console.log(user.password)
-  if(!user){
-    throw new Error("User not found")
-  }
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    isValidPassword = await bcrypt.compare(password, user.password);
+    if (isValidPassword) {
 
-  isValidPassword = await bcrypt.compare(password, user.password)
-  if(!isValidPassword){
-    throw new Error("invalid credentianls")
-  }else{
-    res.send(" user login succesfully ");
-  }
-} catch (error) {
+      const jwt = require('jsonwebtoken');
+
+// Generate a dummy JWT token
+const dummyPayload = { userId: '686503b55c6c2a9c8c055bf3'}; // Fake data
+const token = jwt.sign(dummyPayload, "dummySecret"); // Valid JWT
+
+// Set as cookie
+res.cookie("token", token, {
+  httpOnly: true,
+});
+      res.send("user succesfully stored!!")
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch (error) {
     res.status(400).send("error found:" + error);
   }
+});
+
+// api for getting profile also checking the token is coming or not 
+app.get("/profile", async (req,res)=>{
+  try {
+    const  cookies = req.cookies
+
+  const {token} = cookies
+
+  if(!token){
+    throw new Error("token in not valid")
+  }
+
+  //validating token
+  const decodedMessage = jwt.verify(token,"dummySecret")
+  // console.log(decodedMessage)
+
+  // getting user from the payload
+  const {_id} =decodedMessage
+  const user = await User.findOne(_id)
+  
+  res.send(user)
+  } catch (error) {
+    res.status(400).send("error found:" + error);
+  }
+  
 })
 
 //  api for finding a user from a database
@@ -103,23 +142,31 @@ app.patch("/user", async (req, res) => {
 
   try {
     //now creating a barrier so we can update only selected things not all
-    const allowedUpdates = ["firstName",  "lastName", "_id", "photoUrl", "gender", "age", "about"];
+    const allowedUpdates = [
+      "firstName",
+      "lastName",
+      "_id",
+      "photoUrl",
+      "gender",
+      "age",
+      "about",
+    ];
 
     const isUpdateAllowed = Object.keys(data).every((k) =>
       allowedUpdates.includes(k)
     );
-    console.log(isUpdateAllowed)
+    console.log(isUpdateAllowed);
     if (!isUpdateAllowed) {
-      throw new Error("Update not allowed")
+      throw new Error("Update not allowed");
     }
 
     const updatedUser = await User.findByIdAndUpdate({ _id: userId }, data, {
       returnDocument: "after",
-      runValidators: true
+      runValidators: true,
     });
     res.status(200).send("user updated");
   } catch (error) {
-    res.status(400).send("Update failed"+ error.message);
+    res.status(400).send("Update failed" + error.message);
   }
 });
 
