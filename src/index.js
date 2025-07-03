@@ -3,9 +3,10 @@ const app = express();
 const User = require("./models/user");
 const dbConnection = require("./config/database");
 const { validateSignUpData } = require("./utils/validateSignUpData");
+const userAuth = require("./middleware/auth");
+const isValidPassword = require("./middleware/auth");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
 const port = 7777;
 
 app.use(express.json());
@@ -30,6 +31,9 @@ app.post("/signUp", async (req, res) => {
       password: hashedPass,
     });
 
+    if (!userObj.skills) {
+      throw new Error("skills are required");
+    }
     await userObj.save();
     res.send(" user succesfully stored");
   } catch (error) {
@@ -43,23 +47,15 @@ app.post("/login", async (req, res) => {
     const { emailId, password } = req.body;
 
     const user = await User.findOne({ emailId: emailId });
+
     if (!user) {
       throw new Error("User not found");
     }
-    isValidPassword = await bcrypt.compare(password, user.password);
-    if (isValidPassword) {
-
-      const jwt = require('jsonwebtoken');
-
-// Generate a dummy JWT token
-const dummyPayload = { userId: '686503b55c6c2a9c8c055bf3'}; // Fake data
-const token = jwt.sign(dummyPayload, "dummySecret"); // Valid JWT
-
-// Set as cookie
-res.cookie("token", token, {
-  httpOnly: true,
-});
-      res.send("user succesfully stored!!")
+    const passwordCheck = isValidPassword(password);
+    if (passwordCheck) {
+      const token = await user.getJwt();
+      res.cookie("token", token);
+      res.send("user succesfully logged in!!");
     } else {
       throw new Error("Invalid credentials");
     }
@@ -68,31 +64,16 @@ res.cookie("token", token, {
   }
 });
 
-// api for getting profile also checking the token is coming or not 
-app.get("/profile", async (req,res)=>{
+// api for getting profile also checking the token is coming or not
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const  cookies = req.cookies
-
-  const {token} = cookies
-
-  if(!token){
-    throw new Error("token in not valid")
-  }
-
-  //validating token
-  const decodedMessage = jwt.verify(token,"dummySecret")
-  // console.log(decodedMessage)
-
-  // getting user from the payload
-  const {_id} =decodedMessage
-  const user = await User.findOne(_id)
-  
-  res.send(user)
+    const user = req.user;
+    res.send(user);
   } catch (error) {
     res.status(400).send("error found:" + error);
   }
-  
-})
+});
+``;
 
 //  api for finding a user from a database
 app.get("/user", async (req, res) => {

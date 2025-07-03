@@ -1,0 +1,13 @@
+Steps to send token
+Step-1 ---> first we import jsonwebtoken npm lib.
+Step-2 ---> now we create token with the help of jsonwebtoken.(syntax will see from docs)
+
+Steps to read token
+Step-1 ---> first we will get cookies from the request.
+Step-2 ---> second we will extract token from the cookies.
+Step-3 ---> third we will check token, if its empty we will return it.
+step-4 ---> now we will use jst.verify() method to read that token and extract the hidden data.
+stpe-5 ---> and finally we can use that data as we want.
+
+
+
