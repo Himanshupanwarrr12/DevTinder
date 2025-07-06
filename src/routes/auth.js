@@ -13,7 +13,7 @@ authRouter.post("/signUp", async (req, res) => {
     const { firstName, skills, emailId, gender, password } = req.body;
     const hashedPass = await bcrypt.hash(password, 10);
 
-    // instance of User for userObj
+    // new instance of User for userObj
     const userObj = new User({
       firstName,
       emailId,
@@ -40,7 +40,6 @@ authRouter.post("/login", async (req, res) => {
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
        return res.status(401).json({ error: "Invalid credentials" }); 
-    
     }
     const passwordCheck = await user.validatePassword(password)
      if (!passwordCheck) {

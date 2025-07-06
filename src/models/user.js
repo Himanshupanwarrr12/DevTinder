@@ -38,9 +38,7 @@ const userSchema = new mongoose.Schema({
     gender: {
       type: String,
       required: true,
-      enum: { 
-      values: ["male", "female", "other"],
-      message:"Gender is not defined"},
+      enum: ["male", "female", "other"],
       lowercase: true,
       trim: true,
     },
@@ -74,6 +72,7 @@ const userSchema = new mongoose.Schema({
   { timestamps: true }
 );
 
+
 userSchema.methods.getJwt = async function () {
   const user = this;
   const token = jwt.sign({ _id: user._id }, "secret",{expiresIn:"7d"});
@@ -84,7 +83,6 @@ userSchema.methods.getJwt = async function () {
 userSchema.methods.validatePassword = async function (passwordInputByUser){
   const user = this
   const isValidPassword = await bcrypt.compare(passwordInputByUser,user.password)
-
   return isValidPassword
 }
 

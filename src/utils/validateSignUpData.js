@@ -29,6 +29,7 @@ function validateProfileEditData(req) {
   return isEditAllowed;
 }
 
+
 module.exports = {
   validateSignUpData,
   validateProfileEditData,
