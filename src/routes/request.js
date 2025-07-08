@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const requestRouter = express.Router();
 const userAuth = require("../middleware/auth");
 const userConnectionReq = require("../models/userConnection");
@@ -60,10 +59,10 @@ requestRouter.post(
   async (req, res) => {
     try {
       const loggedInUser = req.user;
-      const { status,id:requestedId } = req.params;
+      const { status,id:requestedConnectionId } = req.params;
       // console.log(req.params)
       // console.log("loggedInuser :", loggedInUser)
-      // console.log("requestedId :", requestedId)
+      // console.log("requestedConnectionId :", requestedConnectionId)
       
 
       // Checking valid status
@@ -74,14 +73,14 @@ requestRouter.post(
 
       //  checking connectinoReq
       const connectionReq = await userConnectionReq.findOne({
-        _id: requestedId,
+        _id: requestedConnectionId,
         toUserId: loggedInUser._id,
         status: "interested",
       });
       if (!connectionReq) {
          // Add debug logging
         console.log("Request not found with params:", {
-          requestedId,
+          requestedConnectionId,
           toUserId: loggedInUser._id,
           status: "interested"
         });
@@ -91,6 +90,7 @@ requestRouter.post(
       }
       // Updating the status
       connectionReq.status = status;
+      
       const updatedRequest = await connectionReq.save();
       res.status(200).send(updatedRequest);
     } catch (error) {

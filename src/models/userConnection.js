@@ -4,11 +4,13 @@ const userConnectionRequestSchema = new mongoose.Schema(
   {
     fromUserId: {
       type: mongoose.Schema.ObjectId,
+      ref: "User",
       required: true,
     },
     toUserId: {
       type: mongoose.Schema.ObjectId,
       required: true,
+      ref:"User"
     },
     status: {
       type: String,
