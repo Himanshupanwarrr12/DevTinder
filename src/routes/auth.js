@@ -39,11 +39,11 @@ authRouter.post("/login", async (req, res) => {
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
-       return res.status(401).json({ error: "Invalid credentials" }); 
+       return res.status(401).json({ error: "Invalid Credentials!!" }); 
     }
     const passwordCheck = await user.validatePassword(password)
      if (!passwordCheck) {
-      return res.status(401).json({ error: "Invalid credentials" }); // Use return + status
+      return res.status(401).json({ error: "Invalid Credentials!!" }); // Use return + status
     }
       const token = await user.getJwt();
       res.cookie("token", token);
