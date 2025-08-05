@@ -78,7 +78,7 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
         { _id: { $nin: Array.from(hideUserIdFromFeed) } },
         { _id: { $ne: loggedInUser._id } },
       ],
-    }).select("firstName skills").skip(skip).limit(limit)
+    }).skip(skip).limit(limit)
 
     res.status(200).send(users);
   } catch (error) {

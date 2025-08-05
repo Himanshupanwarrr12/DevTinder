@@ -1,13 +1,19 @@
 const validator = require("validator");
 
 function validateSignUpData(req) {
-  const { firstName, emailId, password, gender, skills } = req.body;
+  const { firstName, emailId, password, gender,about,photoUrl, skills } = req.body;
 
   if (!firstName) {
     throw new Error("Name is  not valid");
   }
   if (!gender) {
     throw new Error("gender is not valid");
+  }
+  if (!about) {
+    throw new Error("About is not valid");
+  }
+  if (!photoUrl) {
+    throw new Error("photoUrl is not valid");
   }
   if (!skills) {
     throw new Error("skills are  required");
@@ -21,7 +27,7 @@ function validateSignUpData(req) {
 }
 
 function validateProfileEditData(req) {
-  const allowedEditFields = ["firstName", "gender", "about"];
+  const allowedEditFields = ["firstName","emailId", "photoUrl", "about"];
 
   const isEditAllowed = Object.keys(req.body).every((field) =>
     allowedEditFields.includes(field)
