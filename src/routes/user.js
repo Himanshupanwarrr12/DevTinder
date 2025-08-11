@@ -13,7 +13,7 @@ userRouter.get("/user/request/received", userAuth, async (req, res) => {
     const userConnection = await UserConnection.find({
       toUserId: loggedInUser._id,
       status: "interested",
-    }).populate("fromUserId", ["firstName", "gender", "skills"]);
+    }).populate("fromUserId", ["firstName","about","photoUrl" ]);
     if (!userConnection) {
       return res.status(400).send("Requests are empty!!");
     }
@@ -27,15 +27,14 @@ userRouter.get("/user/request/received", userAuth, async (req, res) => {
 userRouter.get("/user/request/connections", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
-
     const connectionReq = await UserConnection.find({
       $or: [
         { toUserId: loggedInUser._id, status: "accepted" },
         { fromUserId: loggedInUser._id, status: "accepted" },
       ],
     })
-      .populate("fromUserId", ["firstName", "skills"])
-      .populate("toUserId", ["firstName", "skills"]);
+      .populate("fromUserId", ["firstName", "skills" , "about", "photoUrl"])
+      .populate("toUserId", ["firstName", "skills" , "about", "photoUrl"]);
 
     if (!connectionReq) {
       return res.status(400).send("No connection found");
