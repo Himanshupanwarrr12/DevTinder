@@ -51,7 +51,6 @@ requestRouter.post("/request/send/:status/:id", userAuth, async (req, res) => {
     res.status(400).send("error found:" + error);
   }
 });
-
 //api  for viewing request
 requestRouter.post(
   "/request/review/:status/:id",
@@ -66,7 +65,7 @@ requestRouter.post(
       
 
       // Checking valid status
-      const allowedReqStatus = ["accepted", "ignored"];
+      const allowedReqStatus = ["accepted", "rejected"];
       if (!allowedReqStatus.includes(status)) {
         return res.status(400).send("Invalid request!!");
       }
