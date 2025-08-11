@@ -46,28 +46,21 @@ const userSchema = new mongoose.Schema({
       type: Number,
       min: 0,
       max: 100,
-      validator: Number.isInteger(),
+      validator: Number.isInteger,
     },
     skills: {
       type: [String],
-      validate: {
-        validator: function (value) {
-          // Ensure value exists and is an array
-          if (!Array.isArray(value)) return false;
-          if (value.length < 2 || value.length > 6) return false;
-          return value.every(
-            (skill) => typeof skill === "string" && skill.trim() !== ""
-          );
-        },
-      },
+      required:false,
     },
     about: {
       type: String,
       default: "default description hai",
+      required:false
     },
     photoUrl: {
       type: String,
-      default:"https://i0.wp.com/fdlc.org/wp-content/uploads/2021/01/157-1578186_user-profile-default-image-png-clipart.png.jpeg?fit=880%2C769&ssl=1"
+      default:"https://i0.wp.com/fdlc.org/wp-content/uploads/2021/01/157-1578186_user-profile-default-image-png-clipart.png.jpeg?fit=880%2C769&ssl=1",
+      required:false
     },
   },
   { timestamps: true }
