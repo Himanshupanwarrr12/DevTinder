@@ -10,7 +10,7 @@ authRouter.post("/signUp", async (req, res) => {
     validateSignUpData(req);
 
     //encrypting data
-    const { firstName, skills, emailId, gender, password } = req.body;
+    const { firstName, skills, emailId, gender,about,photoUrl, password } = req.body;
     const hashedPass = await bcrypt.hash(password, 10);
 
     // new instance of User for userObj
@@ -18,17 +18,16 @@ authRouter.post("/signUp", async (req, res) => {
       firstName,
       emailId,
       gender,
-      skills,
+      skills:[],
       password: hashedPass,
     });
+   const savedUser = await userObj.save();
+   const token = await savedUser.getJwt();
 
-    if (!userObj.skills) {
-      throw new Error("skills are required");
-    }
-    await userObj.save();
-    res.send(" user succesfully stored");
+      res.cookie("token", token);
+    res.json({ message: "User Added successfully!", data: savedUser });
   } catch (error) {
-    res.status(400).send("error found:" + error);
+    res.status(400).json({ error: error.message || "SignUp failed "});
   }
 });
 
