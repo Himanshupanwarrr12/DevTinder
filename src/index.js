@@ -12,6 +12,14 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const cors = require("cors");
 
+// Serve static files first
+app.use(express.static('frontend-build-path'));
+
+// Then handle SPA routing
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'frontend-build-path', 'index.html'));
+});
+
 app.use(
   cors({
     origin: "http://localhost:5173",
