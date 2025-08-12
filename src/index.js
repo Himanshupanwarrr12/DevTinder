@@ -2,43 +2,43 @@ const express = require("express");
 const app = express();
 const dbConnection = require("./config/database");
 const cookieParser = require("cookie-parser");
+const path = require("path"); 
 const port = 7777;
+
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(
+  cors({
+    origin: "http://localhost:5173", 
+    credentials: true
+  })
+);
+
+// API Routes
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
-const cors = require("cors");
-
-// Serve static files first
-app.use(express.static('frontend-build-path'));
-
-// Then handle SPA routing
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'frontend-build-path', 'index.html'));
-});
-
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials:true
-  })
-);
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
 
+const frontendBuildPath = path.join(__dirname, "../frontend/dist"); 
+app.use(express.static(frontendBuildPath));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
+});
+
 dbConnection()
   .then(() => {
-    console.log("database established");
-
+    console.log("Database connected");
     app.listen(port, () => {
-      console.log(`"sever is listening at ${port} "`);
+      console.log(`Server running on port ${port}`);
     });
   })
   .catch((err) => {
-    console.log("database not connected");
+    console.error("Database connection failed:", err);
   });
