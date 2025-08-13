@@ -26,13 +26,6 @@ app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
 
-const frontendBuildPath = path.join(__dirname, "../frontend/dist"); 
-app.use(express.static(frontendBuildPath));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendBuildPath, 'index.html'));
-});
-
 dbConnection()
   .then(() => {
     console.log("Database connected");
